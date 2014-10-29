@@ -1,6 +1,15 @@
 {
     "name": "bankiru/monolog-logstash",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Boris Gorbylev",
+            "email": "gorbylev@banki.ru"
+        }
+    ],
     "require": {
+        "php": ">=5.5.0",
+        "ext-zmq": "*",
         "monolog/monolog": "~1.11"
     },
     "require-dev": {
@@ -8,11 +17,9 @@
         "phpunit/phpunit-mock-objects": "~2.3",
         "phpunit/phpcov": "~2.0"
     },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Boris Gorbylev",
-            "email": "gorbylev@banki.ru"
+    "autoload": {
+        "psr-4": {
+            "Bankiru\\MonologLogstash\\": [ "src/", "tests/" ]
         }
-    ]
+    }
 }
