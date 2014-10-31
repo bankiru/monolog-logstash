@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Bankiru\\MonologLogstash\\": [ "src/", "tests/" ]
+            "Bankiru\\MonologLogstash\\": "src/"
         }
     }
 }

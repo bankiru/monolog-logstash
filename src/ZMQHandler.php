@@ -23,15 +23,30 @@ class ZMQHandler extends AbstractProcessingHandler
      * @param array $socketOptions
      * @param integer $level The minimum logging level at which this handler will be triggered
      * @param Boolean $bubble Whether the messages that are handled can bubble up the stack or not
-     * @throws \UnexpectedValueException
+     * @throws \Psr\Log\InvalidArgumentException
      */
     public function __construct($dsn, $persistent = true, $options = [], $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = [],
                          $level = Logger::DEBUG, $bubble = true)
     {
         parent::__construct($level, $bubble);
 
-        if (!is_string($dsn) || !trim($dsn)) {
+        if (!is_string($dsn) || !trim($dsn) || parse_url($dsn) === false) {
             throw new InvalidArgumentException('dsn is invalid');
+        }
+
+        if (parse_url($dsn, PHP_URL_SCHEME) != 'tcp') {
+            throw new InvalidArgumentException('dsn has invalid schema');
+        }
+
+        if (!parse_url($dsn, PHP_URL_PORT)) {
+            throw new InvalidArgumentException('no port specified in the dsn');
+        }
+
+        if (!preg_match('@^(/)?$@', parse_url($dsn, PHP_URL_PATH))
+            || parse_url($dsn, PHP_URL_QUERY) != ''
+            || parse_url($dsn, PHP_URL_FRAGMENT) != ''
+        ) {
+            throw new InvalidArgumentException("dsn '{$dsn}' has unexpected path or query");
         }
 
         if (!in_array($socketType, array(\ZMQ::SOCKET_PUSH, \ZMQ::SOCKET_REQ))) {
@@ -79,14 +94,9 @@ class ZMQHandler extends AbstractProcessingHandler
     protected function getSocket()
     {
         if ($this->socket === null) {
-            $context = new \ZMQContext();
-            foreach ($this->options as $optKey => $optValue) {
-                $context->setOpt($optKey, $optValue);
-            }
-
             $exception = null;
 
-            $this->socket = $context->getSocket(
+            $this->socket = $this->getContext()->getSocket(
                 $this->socketType,
                 $this->persistent ? get_class($this) : null,
                 function (\ZMQSocket $socket) use (&$exception) {
@@ -110,5 +120,19 @@ class ZMQHandler extends AbstractProcessingHandler
         }
 
         return $this->socket;
+    }
+
+    /**
+     * @return \ZMQContext
+     */
+    protected function getContext() {
+        $context = new \ZMQContext();
+        if ($this->options && method_exists($context, 'setOpt')) {
+            foreach ($this->options as $optKey => $optValue) {
+                $context->setOpt($optKey, $optValue);
+            }
+        }
+
+        return $context;
     }
 }

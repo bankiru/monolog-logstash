@@ -33,7 +33,7 @@ use Bankiru\MonologLogstash\ZMQHandler;
 use Monolog\Formatter\JsonFormatter;
 
 $zmqHandler = new ZMQHandler(
-    'tcp://127.0.0.1:2121', // dsn
+    'tcp://127.0.0.1:2120', // dsn
      true,                  // persistent
      [],                    // ZMQContext options (http://php.net/manual/en/zmqcontext.setopt.php)
      \ZMQ::SOCKET_PUSH,     // ZMQSocket type
