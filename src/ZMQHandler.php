@@ -5,7 +5,7 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 use Psr\Log\InvalidArgumentException;
 
-class ZmqHandler extends AbstractProcessingHandler
+class ZMQHandler extends AbstractProcessingHandler
 {
     protected $dsn;
     protected $persistent;
@@ -23,6 +23,7 @@ class ZmqHandler extends AbstractProcessingHandler
      * @param array $socketOptions
      * @param integer $level The minimum logging level at which this handler will be triggered
      * @param Boolean $bubble Whether the messages that are handled can bubble up the stack or not
+     * @throws \UnexpectedValueException
      */
     public function __construct($dsn, $persistent = true, $options = [], $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = [],
                          $level = Logger::DEBUG, $bubble = true)
@@ -57,6 +58,7 @@ class ZmqHandler extends AbstractProcessingHandler
 
     /**
      * {@inheritdoc}
+     * @throws \RuntimeException
      */
     protected function write(array $record)
     {
@@ -65,50 +67,45 @@ class ZmqHandler extends AbstractProcessingHandler
             try {
                 $socket->send((string)$record['formatted'], \ZMQ::MODE_DONTWAIT);
             } catch (\ZMQSocketException $e) {
-                // @todo think about where to write this exception
+                throw new \RuntimeException(sprintf('Could not write logs to logstash through ZMQ: %s', (string)$e));
             }
         }
     }
 
     /**
      * @return \ZMQSocket
-     * @throws \ZMQSocketException
+     * @throws \RuntimeException
      */
     protected function getSocket()
     {
         if ($this->socket === null) {
-            try {
-                $context = new \ZMQContext();
-                foreach ($this->options as $optKey => $optValue) {
-                    $context->setOpt($optKey, $optValue);
-                }
+            $context = new \ZMQContext();
+            foreach ($this->options as $optKey => $optValue) {
+                $context->setOpt($optKey, $optValue);
+            }
 
-                $isConnected = false;
+            $exception = null;
 
-                $this->socket = $context->getSocket(
-                    $this->socketType,
-                    $this->persistent ? get_class($this) : null,
-                    function (\ZMQSocket $socket, $persistent_id = null) use (&$isConnected) {
-                        foreach ($this->socketOptions as $optKey => $optValue) {
-                            $socket->setSockOpt($optKey, $optValue);
-                        }
-
-                        try {
-                            $socket->connect($this->dsn);
-                            $isConnected = true;
-                        } catch (\ZMQSocketException $e) {
-                            // @todo think about where to write this exception
-                            $socket->disconnect($this->dsn);
-                        }
+            $this->socket = $context->getSocket(
+                $this->socketType,
+                $this->persistent ? get_class($this) : null,
+                function (\ZMQSocket $socket, $persistent_id = null) use (&$exception) {
+                    foreach ($this->socketOptions as $optKey => $optValue) {
+                        $socket->setSockOpt($optKey, $optValue);
                     }
-                );
 
-                if (!$isConnected) {
-                    $this->socket = null;
+                    try {
+                        $socket->connect($this->dsn);
+                    } catch (\ZMQSocketException $e) {
+                        $exception = $e;
+                        $socket->disconnect($this->dsn);
+                    }
                 }
-            } catch (\Exception $e) {
-                // @todo think about where to write this exception
+            );
+
+            if ($exception) {
                 $this->socket = null;
+                throw new \RuntimeException(sprintf('Could not connect to logstash through ZMQ: %s', (string)$exception));
             }
         }
 
