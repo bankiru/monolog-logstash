@@ -1,4 +1,6 @@
 /vendor/
+/build/
+/bin/
 .idea/
 *.iml
 composer.lock
