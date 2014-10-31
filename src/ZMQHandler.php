@@ -4,10 +4,6 @@ namespace Bankiru\MonologLogstash;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 use Psr\Log\InvalidArgumentException;
-use \ZMQ;
-use \ZMQContext;
-use \ZMQSocket;
-use \ZMQSocketException;
 
 class ZMQHandler extends AbstractProcessingHandler
 {
@@ -38,7 +34,7 @@ class ZMQHandler extends AbstractProcessingHandler
             throw new InvalidArgumentException('dsn is invalid');
         }
 
-        if (!in_array($socketType, array(ZMQ::SOCKET_PUSH, ZMQ::SOCKET_REQ))) {
+        if (!in_array($socketType, array(\ZMQ::SOCKET_PUSH, \ZMQ::SOCKET_REQ))) {
             throw new InvalidArgumentException('socketType is invalid');
         }
 
@@ -54,7 +50,7 @@ class ZMQHandler extends AbstractProcessingHandler
      */
     public function close()
     {
-        if ($this->socket instanceof ZMQSocket && !$this->socket->isPersistent()) {
+        if ($this->socket instanceof \ZMQSocket && !$this->socket->isPersistent()) {
             $this->socket->disconnect($this->dsn);
         }
         $this->socket = null;
@@ -69,8 +65,8 @@ class ZMQHandler extends AbstractProcessingHandler
         $socket = $this->getSocket();
         if ($socket) {
             try {
-                $socket->send((string)$record['formatted'], ZMQ::MODE_DONTWAIT);
-            } catch (ZMQSocketException $e) {
+                $socket->send((string)$record['formatted'], \ZMQ::MODE_DONTWAIT);
+            } catch (\ZMQSocketException $e) {
                 throw new \RuntimeException(sprintf('Could not write logs to logstash through ZMQ: %s', (string)$e));
             }
         }
@@ -83,7 +79,7 @@ class ZMQHandler extends AbstractProcessingHandler
     protected function getSocket()
     {
         if ($this->socket === null) {
-            $context = new ZMQContext();
+            $context = new \ZMQContext();
             foreach ($this->options as $optKey => $optValue) {
                 $context->setOpt($optKey, $optValue);
             }
@@ -93,14 +89,14 @@ class ZMQHandler extends AbstractProcessingHandler
             $this->socket = $context->getSocket(
                 $this->socketType,
                 $this->persistent ? get_class($this) : null,
-                function (ZMQSocket $socket) use (&$exception) {
+                function (\ZMQSocket $socket) use (&$exception) {
                     foreach ($this->socketOptions as $optKey => $optValue) {
                         $socket->setSockOpt($optKey, $optValue);
                     }
 
                     try {
                         $socket->connect($this->dsn);
-                    } catch (ZMQSocketException $e) {
+                    } catch (\ZMQSocketException $e) {
                         $exception = $e;
                         $socket->disconnect($this->dsn);
                     }
