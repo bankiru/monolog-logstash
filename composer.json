@@ -1,5 +1,6 @@
 {
     "name": "bankiru/monolog-logstash",
+    "description": "Monolog Logstash - logging to Logstash",
     "license": "MIT",
     "authors": [
         {
