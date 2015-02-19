@@ -11,7 +11,7 @@
     "require": {
         "php": ">=5.3.0",
         "monolog/monolog": "~1.12",
-        "i-ekho/lumberjack-php": "1.0.x-dev"
+        "ekho/lumberjack-php": "~0.1"
     },
     "suggest": {
         "ext-zmq": "Required for ZMQHandler"
