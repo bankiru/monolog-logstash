@@ -18,5 +18,5 @@ if (file_exists(__DIR__ . '/.gitignore')) {
 
 return Symfony\CS\Config\Config::create()
     ->finder($finder)
-    ->fixers(\Symfony\CS\FixerInterface::ALL_LEVEL)
+    ->fixers(\Symfony\CS\FixerInterface::PSR2_LEVEL)
 ;

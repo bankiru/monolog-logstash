@@ -279,7 +279,8 @@ class ZMQHandlerTest extends TestCase
         $refMethod->setAccessible(false);
     }
 
-    private function getSocketMock($methods = array(), \ZMQContext $context = null, $socketType = \ZMQ::SOCKET_PUSH, $persistent = true) {
+    private function getSocketMock($methods = array(), \ZMQContext $context = null, $socketType = \ZMQ::SOCKET_PUSH, $persistent = true)
+    {
         if ($context == null) {
             $context = new \ZMQContext(1, $persistent);
         }
@@ -289,7 +290,8 @@ class ZMQHandlerTest extends TestCase
             ->getMock();
     }
 
-    private function getContextMock($methods = array(), \ZMQSocket $socket = null) {
+    private function getContextMock($methods = array(), \ZMQSocket $socket = null)
+    {
         $context = $this->getMockBuilder('\ZMQContext')
             ->setConstructorArgs(array(1, $socket->isPersistent()))
             ->setMethods($methods)
@@ -313,12 +315,11 @@ class ZMQHandlerTest extends TestCase
     }
 
     private function getHandlerMock($methods = array(), $dsn = 'tcp://127.0.0.1:2120', $persistent = true, $options = array(), $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = array(),
-                                    $level = Logger::DEBUG, $bubble = true) {
-
+                                    $level = Logger::DEBUG, $bubble = true)
+    {
         return $this->getMockBuilder('Bankiru\MonologLogstash\ZMQHandler')
             ->setConstructorArgs(array($dsn, $persistent, $options, $socketType, $socketOptions, $level, $bubble))
             ->setMethods($methods)
             ->getMock();
     }
-
 }

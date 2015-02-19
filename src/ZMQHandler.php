@@ -128,7 +128,8 @@ class ZMQHandler extends AbstractProcessingHandler
     /**
      * @return \ZMQContext
      */
-    protected function getContext() {
+    protected function getContext()
+    {
         $context = new \ZMQContext();
         if ($this->options && method_exists($context, 'setOpt')) {
             foreach ($this->options as $optKey => $optValue) {
