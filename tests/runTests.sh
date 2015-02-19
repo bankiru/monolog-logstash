@@ -10,4 +10,4 @@ echo ''
 echo ''
 echo 'Testing for Coding Styling Compliance.'
 echo 'All code should follow PSR standards.'
-./vendor/bin/php-cs-fixer fix ./ --level="all" -vv --dry-run
+./vendor/bin/php-cs-fixer fix ./ --level="psr2" -vv --dry-run
