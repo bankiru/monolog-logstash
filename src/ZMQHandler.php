@@ -25,7 +25,7 @@ class ZMQHandler extends AbstractProcessingHandler
      * @param Boolean $bubble Whether the messages that are handled can bubble up the stack or not
      * @throws \Psr\Log\InvalidArgumentException
      */
-    public function __construct($dsn, $persistent = true, $options = [], $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = [],
+    public function __construct($dsn, $persistent = true, $options = array(), $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = array(),
                          $level = Logger::DEBUG, $bubble = true)
     {
         parent::__construct($level, $bubble);
@@ -96,19 +96,22 @@ class ZMQHandler extends AbstractProcessingHandler
         if ($this->socket === null) {
             $exception = null;
 
+            $socketOptions = $this->socketOptions;
+            $dsn = $this->dsn;
+
             $this->socket = $this->getContext()->getSocket(
                 $this->socketType,
                 $this->persistent ? get_class($this) : null,
-                function (\ZMQSocket $socket) use (&$exception) {
-                    foreach ($this->socketOptions as $optKey => $optValue) {
+                function (\ZMQSocket $socket) use (&$exception, $socketOptions, $dsn) {
+                    foreach ($socketOptions as $optKey => $optValue) {
                         $socket->setSockOpt($optKey, $optValue);
                     }
 
                     try {
-                        $socket->connect($this->dsn);
+                        $socket->connect($dsn);
                     } catch (\ZMQSocketException $e) {
                         $exception = $e;
-                        $socket->disconnect($this->dsn);
+                        $socket->disconnect($dsn);
                     }
                 }
             );

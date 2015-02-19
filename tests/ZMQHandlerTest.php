@@ -18,7 +18,7 @@ class ZMQHandlerTest extends TestCase
      */
     public function testConstructor()
     {
-        $handler = new ZMQHandler('tcp://127.0.0.1:2120', true, [], \ZMQ::SOCKET_PUSH, [], Logger::DEBUG, true);
+        $handler = new ZMQHandler('tcp://127.0.0.1:2120', true, array(), \ZMQ::SOCKET_PUSH, array(), Logger::DEBUG, true);
         $this->assertInstanceOf('Bankiru\MonologLogstash\ZMQHandler', $handler);
     }
 
@@ -87,38 +87,38 @@ class ZMQHandlerTest extends TestCase
      */
     public function testConstructFailOnInvalidSocketType($socketType)
     {
-        new ZMQHandler('tcp://127.0.0.1:2120', false, [], $socketType);
+        new ZMQHandler('tcp://127.0.0.1:2120', false, array(), $socketType);
         $this->fail('ZMQHandler::__construct() should fail on invalid socketType: ' . var_export($socketType, true));
     }
 
     public function provideUnexpectedPathsOrQueries()
     {
         return array(
-            ['/asdasd'],
-            ['/?asd=1'],
-            ['/#asdsad'],
-            ['/asdasd?asd=dfgh'],
-            ['/asdasd#fdgf'],
-            ['/asdasd?asd=dfgh#fdgf'],
+            array('/asdasd'),
+            array('/?asd=1'),
+            array('/#asdsad'),
+            array('/asdasd?asd=dfgh'),
+            array('/asdasd#fdgf'),
+            array('/asdasd?asd=dfgh#fdgf'),
         );
     }
 
 
     public function provideInvalidSocketTypes()
     {
-        return [
-            ['123747823'],
-            [null],
-            [-1],
-            ['asd'],
-        ];
+        return array(
+            array('123747823'),
+            array(null),
+            array(-1),
+            array('asd'),
+        );
     }
 
     public function testClose()
     {
         $handler = new ZMQHandler('tcp://127.0.0.1:2120');
 
-        $socket = $this->getSocketMock(['disconnect'], null, \ZMQ::SOCKET_PUSH, false);
+        $socket = $this->getSocketMock(array('disconnect'), null, \ZMQ::SOCKET_PUSH, false);
 
         $this->assertFalse($socket->isPersistent());
 
@@ -145,7 +145,7 @@ class ZMQHandlerTest extends TestCase
             ->method('send')
             ->with($this->equalTo($testMessage), $this->equalTo(\ZMQ::MODE_DONTWAIT));
 
-        $handler = $this->getHandlerMock(['getSocket']);
+        $handler = $this->getHandlerMock(array('getSocket'));
 
         $handler->expects($this->once())
             ->method('getSocket')
@@ -155,7 +155,7 @@ class ZMQHandlerTest extends TestCase
         $refMethod = $refClass->getMethod('write');
         $refMethod->setAccessible(true);
 
-        $refMethod->invoke($handler, ['formatted' => $testMessage]);
+        $refMethod->invoke($handler, array('formatted' => $testMessage));
 
         $refMethod->setAccessible(false);
     }
@@ -174,7 +174,7 @@ class ZMQHandlerTest extends TestCase
             ->with($this->equalTo($testMessage), $this->equalTo(\ZMQ::MODE_DONTWAIT))
             ->will($this->throwException(new \ZMQSocketException('test')));
 
-        $handler = $this->getHandlerMock(['getSocket']);
+        $handler = $this->getHandlerMock(array('getSocket'));
 
         $handler->expects($this->once())
             ->method('getSocket')
@@ -184,14 +184,14 @@ class ZMQHandlerTest extends TestCase
         $refMethod = $refClass->getMethod('write');
         $refMethod->setAccessible(true);
 
-        $refMethod->invoke($handler, ['formatted' => $testMessage]);
+        $refMethod->invoke($handler, array('formatted' => $testMessage));
 
         $refMethod->setAccessible(false);
     }
 
     public function testGetContext()
     {
-        $handler = new ZMQHandler('tcp://127.0.0.1:2120', false, [1 => 1]);
+        $handler = new ZMQHandler('tcp://127.0.0.1:2120', false, array(1 => 1));
 
         $refClass = new \ReflectionClass('Bankiru\MonologLogstash\ZMQHandler');
         $refMethod = $refClass->getMethod('getContext');
@@ -206,7 +206,7 @@ class ZMQHandlerTest extends TestCase
     {
         $dsn = 'tcp://127.0.0.1:2120';
 
-        $socket = $this->getSocketMock(['setSockOpt', 'connect']);
+        $socket = $this->getSocketMock(array('setSockOpt', 'connect'));
 
         $socket
             ->expects($this->once())
@@ -217,11 +217,11 @@ class ZMQHandlerTest extends TestCase
             ->method('connect')
             ->with($this->equalTo($dsn));
 
-        $context = $this->getContextMock([], $socket);
+        $context = $this->getContextMock(array(), $socket);
 
         $handler = $this->getHandlerMock(
-            ['getContext', 'close'],
-            $dsn, true, [], \ZMQ::SOCKET_PUSH, [\ZMQ::SOCKOPT_SNDTIMEO => 200]
+            array('getContext', 'close'),
+            $dsn, true, array(), \ZMQ::SOCKET_PUSH, array(\ZMQ::SOCKOPT_SNDTIMEO => 200)
         );
 
         $handler->expects($this->once())
@@ -244,7 +244,7 @@ class ZMQHandlerTest extends TestCase
     {
         $dsn = 'tcp://127.0.0.1:2120';
 
-        $socket = $this->getSocketMock(['setSockOpt', 'connect', 'disconnect']);
+        $socket = $this->getSocketMock(array('setSockOpt', 'connect', 'disconnect'));
 
         $socket
             ->expects($this->once())
@@ -259,11 +259,11 @@ class ZMQHandlerTest extends TestCase
         $socket->expects($this->once())
             ->method('disconnect');
 
-        $context = $this->getContextMock([], $socket);
+        $context = $this->getContextMock(array(), $socket);
 
         $handler = $this->getHandlerMock(
-            ['getContext', 'close'],
-            $dsn, true, [], \ZMQ::SOCKET_PUSH, [\ZMQ::SOCKOPT_SNDTIMEO => 200]
+            array('getContext', 'close'),
+            $dsn, true, array(), \ZMQ::SOCKET_PUSH, array(\ZMQ::SOCKOPT_SNDTIMEO => 200)
         );
 
         $handler->expects($this->once())
@@ -279,19 +279,19 @@ class ZMQHandlerTest extends TestCase
         $refMethod->setAccessible(false);
     }
 
-    private function getSocketMock($methods = [], \ZMQContext $context = null, $socketType = \ZMQ::SOCKET_PUSH, $persistent = true) {
+    private function getSocketMock($methods = array(), \ZMQContext $context = null, $socketType = \ZMQ::SOCKET_PUSH, $persistent = true) {
         if ($context == null) {
             $context = new \ZMQContext(1, $persistent);
         }
         return $this->getMockBuilder('\ZMQSocket')
-            ->setConstructorArgs([$context, $socketType, $persistent])
+            ->setConstructorArgs(array($context, $socketType, $persistent))
             ->setMethods($methods)
             ->getMock();
     }
 
-    private function getContextMock($methods = [], \ZMQSocket $socket = null) {
+    private function getContextMock($methods = array(), \ZMQSocket $socket = null) {
         $context = $this->getMockBuilder('\ZMQContext')
-            ->setConstructorArgs([1, $socket->isPersistent()])
+            ->setConstructorArgs(array(1, $socket->isPersistent()))
             ->setMethods($methods)
             ->getMock();
 
@@ -312,11 +312,11 @@ class ZMQHandlerTest extends TestCase
         return $context;
     }
 
-    private function getHandlerMock($methods = [], $dsn = 'tcp://127.0.0.1:2120', $persistent = true, $options = [], $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = [],
+    private function getHandlerMock($methods = array(), $dsn = 'tcp://127.0.0.1:2120', $persistent = true, $options = array(), $socketType = \ZMQ::SOCKET_PUSH, $socketOptions = array(),
                                     $level = Logger::DEBUG, $bubble = true) {
 
         return $this->getMockBuilder('Bankiru\MonologLogstash\ZMQHandler')
-            ->setConstructorArgs([$dsn, $persistent, $options, $socketType, $socketOptions, $level, $bubble])
+            ->setConstructorArgs(array($dsn, $persistent, $options, $socketType, $socketOptions, $level, $bubble))
             ->setMethods($methods)
             ->getMock();
     }

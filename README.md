@@ -18,14 +18,16 @@ Monolog Logstash - logging to [Logstash](http://logstash.net/) [![Build Status](
 
 ### Github
 
-Releases of IP Tools are available on [Github](https://github.com/bankiru/monolog-logstash).
+Releases available on [Github](https://github.com/bankiru/monolog-logstash).
 
 
 ## Documentation
 
-Currently implemented only [ZMQ transport](http://logstash.net/docs/1.4.2/inputs/zeromq)
+Currently implemented:
+* [ZMQ transport](http://logstash.net/docs/1.4.2/inputs/zeromq)
+* [Lumberjack transport](http://logstash.net/docs/1.4.2/inputs/lumberjack)
 
-
+### ZMQ transport
 ```
 <?php
 
@@ -46,4 +48,34 @@ $zmqHandler->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_NEWLINES))
 
 $log = new Logger('name');
 $log->pushHandler($zmqHandler);
+```
+
+### Lumberjack transport
+```
+<?php
+
+use Bankiru\MonologLumberjack\LumberjackHandler;
+use Monolog\Formatter\LogstashFormatter;
+use Ekho\Logstash\Lumberjack;
+
+$lumberjackHandler = new LumberjackHandler(
+    new Lumberjack\Client(
+        new Lumberjack\SecureSocket(
+            '127.0.0.1', // logstash host
+            2323,        // logstash lumberjack input port
+            array(
+                'ssl_cafile' => 'path/to/certificate.crt',
+            )
+        ),
+        new Lumberjack\Encoder(),
+        5000 // window size
+    )
+     Logger::INFO,          // log level
+     true                   // bubble
+);
+
+$lumberjackHandler->setFormatter(new LogstashFormatter('my_app_name'));
+
+$log = new Logger('name');
+$log->pushHandler($lumberjackHandler);
 ```
