@@ -55,7 +55,7 @@ $log->pushHandler($zmqHandler);
 <?php
 
 use Bankiru\MonologLumberjack\LumberjackHandler;
-use Monolog\Formatter\LogstashFormatter;
+use Bankiru\MonologLumberjack\LumberjackFormatter;
 use Ekho\Logstash\Lumberjack;
 
 $lumberjackHandler = new LumberjackHandler(
@@ -74,7 +74,7 @@ $lumberjackHandler = new LumberjackHandler(
      true                   // bubble
 );
 
-$lumberjackHandler->setFormatter(new LogstashFormatter('my_app_name'));
+$lumberjackHandler->setFormatter(new LumberjackFormatter('my_app_name'));
 
 $log = new Logger('name');
 $log->pushHandler($lumberjackHandler);
