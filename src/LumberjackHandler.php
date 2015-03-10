@@ -24,7 +24,7 @@ class LumberjackHandler extends AbstractProcessingHandler
     {
         $windowSize = self::DEFAULT_WINDOW_SIZE;
 
-        if (array_key_exists('windows_size', $options)) {
+        if (array_key_exists('window_size', $options)) {
             $windowSize = $options['window_size'] ?: self::DEFAULT_WINDOW_SIZE;
             unset($options['window_size']);
         }
