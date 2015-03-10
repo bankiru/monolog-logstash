@@ -13,6 +13,13 @@ class LumberjackHandler extends AbstractProcessingHandler
 
     private $enabled = true;
 
+    /**
+     * @param string $host IP or hostname
+     * @param int $port Port where Logstash listen connections with input lumberjack
+     * @param string $cafile path to certificate file
+     * @param array $options various lumberjack options (@see Lumberjack\Client)
+     * @return LumberjackHandler
+     */
     public function init($host, $port, $cafile, array $options = array())
     {
         $windowSize = self::DEFAULT_WINDOW_SIZE;
@@ -36,6 +43,8 @@ class LumberjackHandler extends AbstractProcessingHandler
             $this->enabled = false;
             error_log($ex->getMessage());
         }
+
+        return $this;
     }
 
     /**
