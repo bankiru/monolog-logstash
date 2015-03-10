@@ -58,22 +58,15 @@ use Bankiru\MonologLumberjack\LumberjackHandler;
 use Bankiru\MonologLumberjack\LumberjackFormatter;
 use Ekho\Logstash\Lumberjack;
 
-$lumberjackHandler = new LumberjackHandler(
-    new Lumberjack\Client(
-        new Lumberjack\SecureSocket(
-            '127.0.0.1', // logstash host
-            2323,        // logstash lumberjack input port
-            array(
-                'ssl_cafile' => 'path/to/certificate.crt',
-            )
-        ),
-        new Lumberjack\Encoder(),
-        5000 // window size
-    )
-     Logger::INFO,          // log level
-     true                   // bubble
+$lumberjackHandler = new LumberjackHandler(Logger::INFO, true);
+$lumberjackHandler->init(
+    '127.0.0.1',
+    2323,
+    'path/to/certificate.crt',
+    [
+        'window_size' => 5000,
+    ]
 );
-
 $lumberjackHandler->setFormatter(new LumberjackFormatter('my_app_name'));
 
 $log = new Logger('name');
