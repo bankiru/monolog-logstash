@@ -54,8 +54,8 @@ $log->pushHandler($zmqHandler);
 ```
 <?php
 
-use Bankiru\MonologLumberjack\LumberjackHandler;
-use Bankiru\MonologLumberjack\LumberjackFormatter;
+use Bankiru\MonologLogstash\LumberjackHandler;
+use Bankiru\MonologLogstash\LumberjackFormatter;
 use Ekho\Logstash\Lumberjack;
 
 $lumberjackHandler = new LumberjackHandler(Logger::INFO, true);
