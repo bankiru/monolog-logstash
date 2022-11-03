@@ -27,5 +27,6 @@
         "psr-4": {
             "Bankiru\\MonologLogstash\\": "src/"
         }
-    }
+    },
+    "abandoned": true
 }
